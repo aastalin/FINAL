@@ -1,5 +1,5 @@
 CCX = g++
-CCXFLAGS = -O3 -funroll-loops -march=native -std=c++11 -pthread -I. -I./include
+CCXFLAGS = -O3 -funroll-loops -fPIC -march=native -std=c++11 -pthread -I. -I./include
 DEPS = -lntl -lgmp -lfftw3 -lm
 
 all: clean test
