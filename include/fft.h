@@ -20,12 +20,16 @@ class FFT_engine
     double* in_array;
     fftw_complex* out_array;
 
+    static std::mutex plan_mutex;
 public:
     vector<FFTPoly> pos_powers;
     vector<FFTPoly> neg_powers;
 
     FFT_engine() = delete;
     FFT_engine(const int dim);
+
+    FFT_engine(const FFT_engine&) = delete;
+    FFT_engine& operator=(const FFT_engine&) = delete;
 
     void to_fft(FFTPoly& out, const ModQPoly& in) const;
     void from_fft(vector<long>& out, const FFTPoly& in) const;
@@ -43,7 +47,7 @@ FFTPoly operator -(const FFTPoly& a, const FFTPoly& b);
 void operator -=(FFTPoly& a, const FFTPoly& b);
 
 // global FFT engine of dimension N
-const FFT_engine fftN(Param::N);
+extern thread_local const FFT_engine fftN;
 
 
 #endif

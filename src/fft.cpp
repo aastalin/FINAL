@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <iterator>
 
+std::mutex FFT_engine::plan_mutex;
+thread_local const FFT_engine fftN(Param::N);
+
 FFT_engine::FFT_engine(const int dim): fft_dim(dim)
 {
     assert(dim%2 == 0);
@@ -12,8 +15,12 @@ FFT_engine::FFT_engine(const int dim): fft_dim(dim)
 
     in_array = (double*) fftw_malloc(sizeof(double) * 2*dim);
     out_array = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (dim + 2));
-    plan_to_fft = fftw_plan_dft_r2c_1d(2*dim, in_array, out_array,  FFTW_PATIENT);
-    plan_from_fft = fftw_plan_dft_c2r_1d(2*dim, out_array, in_array,  FFTW_PATIENT);
+
+    {
+        std::lock_guard<std::mutex> lock(plan_mutex);
+        plan_to_fft = fftw_plan_dft_r2c_1d(2*dim, in_array, out_array, FFTW_PATIENT);
+        plan_from_fft = fftw_plan_dft_c2r_1d(2*dim, out_array, in_array, FFTW_PATIENT);
+    }
 
     pos_powers = vector<FFTPoly>(dim,FFTPoly(fft_dim2));
     neg_powers = vector<FFTPoly>(dim,FFTPoly(fft_dim2));

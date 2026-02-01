@@ -5,18 +5,28 @@
 #include <random>
 #include <vector>
 #include <chrono>
+#include <thread>
 #include "params.h"
 
 using namespace NTL;
 using namespace std;
 
 
+/*
 // random engine
 static default_random_engine rand_engine(std::chrono::system_clock::now().time_since_epoch().count());
 // uniform distribution on the ternary set
 static uniform_int_distribution<int> ternary_sampler(-1,1);
 // uniform distribution on the binary set
 static uniform_int_distribution<int> binary_sampler(0,1);
+*/
+inline int get_seed() {
+    return std::chrono::system_clock::now().time_since_epoch().count() +
+           std::hash<std::thread::id>{}(std::this_thread::get_id());
+}
+static thread_local default_random_engine rand_engine(get_seed());
+static thread_local uniform_int_distribution<int> ternary_sampler(-1,1);
+static thread_local uniform_int_distribution<int> binary_sampler(0,1);
 
 class Sampler
 {
